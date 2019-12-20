@@ -1,26 +1,44 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Document } from '../document.model';
+import { DocumentsService } from '../documents.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+
+
 @Component({
   selector: 'app-document-list',
   templateUrl: './document-list.component.html',
   styleUrls: ['./document-list.component.css']
 })
-export class DocumentListComponent implements OnInit {
+export class DocumentListComponent implements OnInit, OnDestroy {
   
-  documents: Document[] = [
-    new Document('1', 'CIT 260 -', 'Object Oriented Programing', 'https://content.byui.edu/fileb7c3e5ed-6947-497f-9d32-4e5b397cac/1/CIT 260 course description.pdf', null),
-    new Document('2', 'CIT 425 -', 'Data Warehouse', 'https://content.byui.edu/fileb7c3e5ed-6947-497f-9d32-4e5b397cac/1/CIT 425 course description.pdf', null),
-    new Document('3', 'CIT 366 -', 'Full Web Stack Development', 'https://content.byui.edu/fileb7c3e5ed-6947-497f-9d32-4e5b397cac/1/CIT 366 course description.pdf', null),
-    new Document('4', 'CIT 460 -', 'Enterprise Development', 'https://content.byui.edu/fileb7c3e5ed-6947-497f-9d32-4e5b397cac/1/CIT 460 course description.pdf', null),
+  documents: Document[];
+  private subscription: Subscription;
 
-  ];
-  @Output() selectedDocumentEvent = new EventEmitter<Document>();
-  constructor() { }
-
-  ngOnInit() {
+  constructor(
+    private documentService: DocumentsService,
+    private router: Router,
+    private route: ActivatedRoute) {
+    this.documentService.getDocuments();
   }
 
-  onSelectedDocument(document: Document) {
-    this.selectedDocumentEvent.emit(document);
- }
+  ngOnInit() {
+    //this.documents = this.documentsService.getDcocument();
+    
+    this.documentService.getDocuments();
+    this.subscription = this.documentService.documentChangedEvent.subscribe(
+      (document: Document[]) => {
+        this.documents = document;
+      }
+    )
+  }
+
+  onNewDocument() {
+    this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
 }

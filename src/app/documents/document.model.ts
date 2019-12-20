@@ -1,7 +1,7 @@
 
 export class Document {
     constructor( 
-    public documentId: string,
+    public id: string,
     public name: string,
     public description: string,
     public url: string,

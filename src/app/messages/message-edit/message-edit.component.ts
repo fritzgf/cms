@@ -1,49 +1,36 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import {Component, OnInit, ViewChild, ElementRef} from '@angular/core';
 import { Message } from '../message.model';
+import { MessagesService } from '../messages.service';
+import { ContactService } from 'src/app/contacts/contact.service';
+
 @Component({
   selector: 'app-message-edit',
   templateUrl: './message-edit.component.html',
-  styleUrls: ['./message-edit.component.css']
+  styleUrls: ['./message-edit.component.css'],
+  providers: [MessagesService, ContactService]
 })
 export class MessageEditComponent implements OnInit {
-  @ViewChild('subject', { static: true })
-  subject: ElementRef;
+  @ViewChild('subject', { static: false }) subjectInput: ElementRef;
+  @ViewChild('msgText', { static: false }) messageInput: ElementRef;
+ // msgText: ElementRef;
 
-  @ViewChild('msgText', { static: true })
-  msgText: ElementRef;
+  //@Output() addMessageEvent = new EventEmitter<Message>();
 
-  @Output() addMessageEvent = new EventEmitter<Message>();
+  currentSender = "Frit";
 
-  currentSender = 'Fritz';
-
-  constructor() {}
+  constructor(private messagesService: MessagesService, private contactService: ContactService) {}
 
   ngOnInit() {}
-
   onSendMessage() {
-    const sendSubject = this.subject.nativeElement.value;
-    const sendMsgText = this.msgText.nativeElement.value;
-
-    const sendMessage = new Message(
-      '1',
-      sendSubject,
-      sendMsgText,
-      this.currentSender
-    );
-
-    this.addMessageEvent.emit(sendMessage);
+    const subject = this.subjectInput.nativeElement.value;
+    const msgText = this.messageInput.nativeElement.value;
+    const newMessage = new Message('', subject, msgText, this.currentSender)
+    this.messagesService.addMessage(newMessage);
   }
 
   onClear() {
-    this.subject.nativeElement.value = '';
-    this.msgText.nativeElement.value = '';
+    this.subjectInput.nativeElement.value = '';
+    this.messageInput.nativeElement.value = '';
   }
 
 }
